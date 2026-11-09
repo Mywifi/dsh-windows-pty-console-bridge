@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Windows PTY Console Bridge",
+    "description": "Fixes immediate terminal startup exits in Windows Desktop while preserving the existing sandbox permissions."
+  }
+}

@@ -1,0 +1,3 @@
+- insert:
+    - id: windows-pty-console-bridge
+      name: dsh-windows-pty-console-bridge

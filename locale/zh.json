@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Windows PTY 兼容修复",
+    "description": "修复 Windows 桌面版终端启动时立即退出的问题，保留现有沙箱权限。"
+  }
+}

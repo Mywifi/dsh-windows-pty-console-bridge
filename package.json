@@ -1,0 +1,67 @@
+{
+  "name": "dsh-windows-pty-console-bridge",
+  "version": "1.0.2",
+  "description": "Windows PTY console bridge for DeepSeek Harness Desktop; preserves the existing sandbox runner and permissions.",
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.mjs",
+    "bridge.cmd",
+    "cordis.patch.yml",
+    "locale",
+    "icon.svg",
+    "README.md",
+    "README.zh-CN.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "icon": "./icon.svg",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "deepseek",
+    "harness",
+    "dsh-plugin",
+    "windows",
+    "pty"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.1.0",
+    "@deepseek-ai/dsh-subprocess": ">=0.2.2-rc.1 <0.3.0"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-subprocess": {
+      "optional": true
+    }
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "release:build": "node scripts/release.mjs",
+    "release:verify": "python scripts/verify_release.py"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mywifi/dsh-windows-pty-console-bridge.git"
+  },
+  "homepage": "https://github.com/Mywifi/dsh-windows-pty-console-bridge#readme",
+  "bugs": {
+    "url": "https://github.com/Mywifi/dsh-windows-pty-console-bridge/issues"
+  }
+}
