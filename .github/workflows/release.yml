@@ -2,13 +2,23 @@ name: Release
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to publish or repair
+        required: true
+        type: string
 permissions:
   contents: write
 jobs:
   release:
     runs-on: windows-latest
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -19,7 +29,7 @@ jobs:
         shell: pwsh
         run: |
           $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
-          if ($env:GITHUB_REF_NAME -ne "v$version") { throw 'Tag and manifest versions differ' }
+          if ($env:RELEASE_TAG -cne "v$version") { throw 'Tag and manifest versions differ' }
       - run: npm test
       - run: npm run release:build
       - run: npm run release:verify
@@ -30,5 +40,18 @@ jobs:
         run: |
           $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
           $name = (Get-Content package.json -Raw | ConvertFrom-Json).name
-          gh release create "v$version" "dist/$name-$version.tgz" "dist/$name-$version-windows.zip" "dist/SHA256SUMS.txt" --verify-tag --title "v$version" --notes-file CHANGELOG.md
-          if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
+          $assets = @("dist/$name-$version.tgz", "dist/$name-$version-windows.zip", 'dist/SHA256SUMS.txt')
+          $existing = gh release view "v$version" --json assets
+          if ($LASTEXITCODE -eq 0) {
+            $published = ($existing | ConvertFrom-Json).assets.name
+            $missing = @($assets | Where-Object { (Split-Path $_ -Leaf) -notin $published })
+            if ($missing.Count -gt 0) {
+              gh release upload "v$version" @missing
+              if ($LASTEXITCODE -ne 0) { throw 'Release asset upload failed' }
+            } else {
+              Write-Output 'All installable release assets are already present.'
+            }
+          } else {
+            gh release create "v$version" @assets --verify-tag --title "v$version" --notes-file CHANGELOG.md
+            if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
+          }
